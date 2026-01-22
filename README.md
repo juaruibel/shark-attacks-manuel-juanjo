@@ -193,6 +193,6 @@ Preguntas que guían el análisis (mapeadas en `notebook_limpio.ipynb` y `notebo
 
 ## Cómo replicar el proyecto
 Instrucciones exactas (entorno, dependencias, y orden recomendado):
-- Notebook de exploración inicial: `conclusion_day_01.ipynb`
-- Notebook de limpieza: `notebook_limpio.ipynb`
-- Notebook de hipótesis/insights: `notebook_hipotesis.ipynb`
+- Notebook de exploración inicial: `01_notebook_exploracion_inicial.ipynb`
+- Notebook de limpieza: `02_notebook_limpio.ipynb`
+- Notebook de hipótesis/insights: `03_notebook_hipotesis.ipynb`
