@@ -176,19 +176,19 @@ Preguntas que guían el análisis (mapeadas en `notebook_limpio.ipynb` y `notebo
 - Dado que `Los Angeles`, `San Diego`, `Santa Barbara` y `Orange County` concentran aproximadamente el 40% de los incidentes registrados en `California` tras la agregación de `location`, proponemos `Los Angeles` como sede operativa para maximizar cobertura de las zonas con mayor concentración de incidentes y reducir fricción logística hacia los principales puntos de interés. Esta decisión debe validarse en una siguiente iteración con denominadores de exposición (afluencia a playas/actividad acuática) y señales de demanda (turismo/operadores/condiciones), ya que el dataset mide incidentes, no avistamientos.
 
 ## Recomendaciones de negocio
-- **Estado recomendado** para expansión: **California** (en este análisis exploratorio, el riesgo observado es menor que en Hawaii y el volumen de incidentes es comparable; requiere validación tras corregir errores y definir tasa con `UNKNOWN`).
+- **Estado candidato** para expansión: **California** (en este análisis exploratorio, el riesgo observado es menor que en Hawaii y el volumen de incidentes es comparable; requiere validación tras corregir errores y definir tasa con `UNKNOWN`).
 - **Ventana temporal (incidentes registrados)**: mayor concentración en junio–octubre (especialmente julio, agosto y septiembre).
-- **Propuesta de actividades**:`fishing` y `diving` se plantean como hipótesis de menor letalidad observada; requiere cálculo formal de tasas por actividad y control de tamaños muestrales.
+- **Propuesta de actividades**: `fishing` y `diving` se plantean como hipótesis de menor letalidad observada; requiere cálculo formal de tasas por actividad y control de tamaños muestrales.
 - **Sede operativa (cobertura de incidentes)**: `Los Angeles` como hipótesis logística para cubrir áreas con mayor concentración de incidentes; requiere validación con exposición/demanda.
 
 ## Limitaciones
-- Faltan: proxies y correlaciones para un análisis más en detalle buscando también agregaciones con datasets externos para obetener conclusiones más sólidas y una limpieza más profunda y una búsqueda semántica por localización agregada más extensa.
+- Faltan: proxies y correlaciones para un análisis más en detalle buscando también agregaciones con datasets externos para obtener conclusiones más sólidas y una limpieza más profunda y una búsqueda semántica por localización agregada más extensa.
 - La fiabilidad de las fuentes no ha sido corroborada.
 - Explorar `Hawaii` como estado destino para segmentación de `extreme diving`.
 
 ### Errores
 
-- En el notebook `02_notebook_limpio.ipynb` hay dos decisiones que contaminan el análisis:
+- En el notebook `02_notebook_limpio.ipynb` hay dos decisiones que afectan la fiabilidad del análisis:
     * En la celda 9:
         ```python
         # Aplicamos `.map()`
@@ -212,13 +212,13 @@ Preguntas que guían el análisis (mapeadas en `notebook_limpio.ipynb` y `notebo
         df_shark_attacks['age_clean'] = df_shark_attacks['age_clean'].fillna(age_mediana)
         ````
         Estas líneas imputan con la mediana una gran parte de la columna de `age`; esto afecta especialmente a cualquier conclusión basada en `age_clean` (p.ej., segmentación por edad)
-- Estas decisiones afectan especialmente a la integridad de valores faltantes por el `fillna` global y a cualquier observación basado en `age_clean` por imputación masiva.
+- Estas decisiones afectan especialmente a la integridad de valores faltantes por el `fillna` global y a cualquier observación basada en `age_clean` por imputación masiva.
 
 ## Próximos pasos
 - Profundizar en correlación `species` ↔ `fatal` y estacionalidad por especie, letalidad y tipo de daño (`injury`).
 - Robustecer fechas y métrica de letalidad (tasa, no solo conteo).
 - Añadir visualizaciones (mapa/heatmap/scatterplot/gráfico de barras por mes y zona).
-- Corregir errores detectados en el proceso de limpieza y recalcular métricas clave
+- Corregir errores detectados en el proceso de limpieza y recalcular métricas clave.
 
 ## Cómo replicar el proyecto
 Instrucciones exactas (entorno, dependencias, y orden recomendado):
