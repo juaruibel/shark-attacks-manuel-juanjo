@@ -32,7 +32,7 @@ Somos una consultora (`Manuel-Juanjo Consulting Enterprise`) que entrega un info
 - `fatal`: indicador de letalidad (`Y`, `N`, `UNKNOWN`).
 - `species`: especie recategorizada (p.ej. `White Shark`, `Tiger Shark`, `Bull Shark`, `Hammerhead Shark`, `Other Shark`, `Unknown`).
 - `age_clean`: edad numérica (derivada desde `age`).
-- `mes`: mes extraído desde `date` (`Jan`–`Dec`) o `None` si no se pudo parsear.
+- `mes`: mes extraído desde `date` (`Jan`–`Dec`) o `None`.
 
 ## Notas sobre calidad del dato
 - Se eliminaron **columnas referenciales** que no eran necesarias para el análisis de incidencias/riesgo (p.ej. columnas tipo `pdf`, `href`, `case number`, `unnamed`, etc.).
@@ -156,30 +156,30 @@ def state_format(state):
 Preguntas que guían el análisis (mapeadas en `notebook_limpio.ipynb` y `notebook_hipotesis.ipynb`):
 - ¿Qué estado es mejor candidato para una expansión desde Florida si buscamos **menor riesgo**?
 - En California: ¿en qué meses se producen más incidentes?
-- En California: ¿qué actividades aparecen como más seguras para un negocio de avistamiento?
-- En California: ¿qué localizaciones concentran más incidentes y dónde conviene situar una sede operativa para poder abaratar costes de desplazamiento?
+- En California: ¿qué actividades aparecen como más seguras según el proxy de letalidad del dataset?
+- En California: ¿qué localizaciones concentran más incidentes y qué área podría servir como sede operativa orientada a cobertura logística?
 
 ## Proceso de análisis
 - EDA inicial: estructura, tipos, nulos, duplicados, variabilidad.
 - Limpieza: normalización de categorías (`type/sex/fatal/species/state`), limpieza de strings y reducción de ruido.
 - Feature engineering: `age_clean` (numérica) y `mes` (mes desde `date`), recategorización de `activity`.
 - Segmentación: comparación inicial California vs Hawaii y focalización final en California.
-- Métricas usadas: conteos por mes/estado, aproximación de letalidad por `fatal`, distribución de localizaciones y proporciones.
+- Métricas usadas: conteos por mes/estado, aproximación de letalidad por fatal (pendiente de definir tratamiento de `UNKNOWN`), distribución de localizaciones y proporciones.
 
 ## Resultados / Insights
 
 ### Marketing
-- El análisis por edad de nuestro dataframe arroja que la mediana de edad es de `24` años. Esta es la edad que se ha imputado en los datos. Se recomienda un marketing que el target principal sea este grupo de edad.
-- Por la conclusión de la hipótesis 2, la campaña publicitaria podría segmentarse en `fishing` y `diving` como reclamo de dos grupos de edades: uno más joven (`diving`) y otro más maduro (`fishing`).
+- Debido al alto porcentaje de valores faltantes en `age`, la imputación con la mediana facilita el análisis pero puede sesgar la distribución, por lo que evitamos usarla como recomendación directa de marketing. Como observación preliminar, la edad observada sugiere una concentración en rangos adultos jóvenes, pero se requiere validación con datos completos.
+- Como hipótesis de marketing operativa, proponemos orientar campañas a `fishing` y `diving` como dos líneas de producto distintas (perfiles potencialmente diferentes). La segmentación por edad se plantea como siguiente paso, calculando distribuciones y tasas por actividad usando edades no imputadas o imputación controlada (marcando `imputed`).
 
 ### Sede
-- Por el porcentaje de avistamientos o encuentros y cercanía de ciudades en el mismo estado de `California`, `Los Angeles` parece la localización idónea para redirigir el flujo de clientes hacia la costa (`Los Angeles`, `San Diego`, `Santa Barbara` y `Orange County`) que en ese momento por avistamientos o análisis ulteriores señalen mayor probabilidad. Juntas, estas cuatro localizaciones suman casi el 40% de los avistamientos en el estado.
+- Dado que `Los Angeles`, `San Diego`, `Santa Barbara` y `Orange County` concentran aproximadamente el 40% de los incidentes registrados en `California` tras la agregación de `location`, proponemos `Los Angeles` como sede operativa para maximizar cobertura de las zonas con mayor concentración de incidentes y reducir fricción logística hacia los principales puntos de interés. Esta decisión debe validarse en una siguiente iteración con denominadores de exposición (afluencia a playas/actividad acuática) y señales de demanda (turismo/operadores/condiciones), ya que el dataset mide incidentes, no avistamientos.
 
 ## Recomendaciones de negocio
-- **Estado recomendado** para expansión: **California** (comparando con Hawaii, el riesgo observado es menor y el volumen de incidentes es comparable).
-- **Ventana temporal**: concentrar operaciones en **junio–octubre** (especialmente **julio, agosto y septiembre**).
-- **Propuesta de actividades**: priorizar campañas/experiencias orientadas a **fishing** y **diving** como actividades relativamente “más seguras” según el proxy de letalidad.
-- **Sede operativa**: usar **Los Angeles** para redirigir flujo hacia costa y zonas cercanas (p.ej. Los Angeles / San Diego / Santa Barbara / Orange County).
+- **Estado recomendado** para expansión: **California** (en este análisis exploratorio, el riesgo observado es menor que en Hawaii y el volumen de incidentes es comparable; requiere validación tras corregir errores y definir tasa con `UNKNOWN`).
+- **Ventana temporal (incidentes registrados)**: mayor concentración en junio–octubre (especialmente julio, agosto y septiembre).
+- **Propuesta de actividades**:`fishing` y `diving` se plantean como hipótesis de menor letalidad observada; requiere cálculo formal de tasas por actividad y control de tamaños muestrales.
+- **Sede operativa (cobertura de incidentes)**: `Los Angeles` como hipótesis logística para cubrir áreas con mayor concentración de incidentes; requiere validación con exposición/demanda.
 
 ## Limitaciones
 - Faltan: proxies y correlaciones para un análisis más en detalle buscando también agregaciones con datasets externos para obetener conclusiones más sólidas y una limpieza más profunda y una búsqueda semántica por localización agregada más extensa.
@@ -188,7 +188,7 @@ Preguntas que guían el análisis (mapeadas en `notebook_limpio.ipynb` y `notebo
 
 ### Errores
 
-- En el notebook `02_notebook_limpio.ipynb` hay dos errores que contaminan el análisis:
+- En el notebook `02_notebook_limpio.ipynb` hay dos decisiones que contaminan el análisis:
     * En la celda 9:
         ```python
         # Aplicamos `.map()`
@@ -211,14 +211,14 @@ Preguntas que guían el análisis (mapeadas en `notebook_limpio.ipynb` y `notebo
         # Rellenamos los nulos con la mediana
         df_shark_attacks['age_clean'] = df_shark_attacks['age_clean'].fillna(age_mediana)
         ````
-        Estas líneas imputan con la mediana toda la columna de edad antes de pasar a analizar `California` como estado central para el análisis.
-- Estos errores generan desconfianza sobre algunas de las hipótesis lanzadas durante el proyecto.
+        Estas líneas imputan con la mediana una gran parte de la columna de `age`; esto afecta especialmente a cualquier conclusión basada en `age_clean` (p.ej., segmentación por edad)
+- Estas decisiones afectan especialmente a la integridad de valores faltantes por el `fillna` global y a cualquier observación basado en `age_clean` por imputación masiva.
 
 ## Próximos pasos
 - Profundizar en correlación `species` ↔ `fatal` y estacionalidad por especie, letalidad y tipo de daño (`injury`).
 - Robustecer fechas y métrica de letalidad (tasa, no solo conteo).
 - Añadir visualizaciones (mapa/heatmap/scatterplot/gráfico de barras por mes y zona).
-- Corregir errores detectados en `## Limitaciones`.
+- Corregir errores detectados en el proceso de limpieza y recalcular métricas clave
 
 ## Cómo replicar el proyecto
 Instrucciones exactas (entorno, dependencias, y orden recomendado):
