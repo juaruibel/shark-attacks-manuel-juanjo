@@ -5,7 +5,7 @@
 El objetivo del proyecto consiste en limpiar el dataset buscando hipótesis con las que explorar negocios potencialmente rentables.
 
 ## Contexto del negocio
-Somos una consultora (`Manuel-Juanjo Consulting Enterprise`) que entrega un informe a una empresa de *shark spotting* que ya opera en **Florida** y quiere **expandirse al mejor estado posible** minimizando riesgo y maximizando oportunidades de avistamiento.
+Somos una consultora (`Manuel-Juanjo Consulting Enterprise`) que entrega un informe a una empresa de *shark spotting* que ya opera en **Florida** y quiere **expandirse al mejor estado posible** minimizando riesgo.
 
 ## Dataset
 **Fuente**
@@ -154,7 +154,7 @@ def state_format(state):
 
 ## Preguntas clave
 Preguntas que guían el análisis (mapeadas en `notebook_limpio.ipynb` y `notebook_hipotesis.ipynb`):
-- ¿Qué estado es mejor candidato para una expansión desde Florida si buscamos **más avistamientos** y **menor riesgo**?
+- ¿Qué estado es mejor candidato para una expansión desde Florida si buscamos **menor riesgo**?
 - En California: ¿en qué meses se producen más incidentes?
 - En California: ¿qué actividades aparecen como más seguras para un negocio de avistamiento?
 - En California: ¿qué localizaciones concentran más incidentes y dónde conviene situar una sede operativa para poder abaratar costes de desplazamiento?
@@ -186,10 +186,39 @@ Preguntas que guían el análisis (mapeadas en `notebook_limpio.ipynb` y `notebo
 - La fiabilidad de las fuentes no ha sido corroborada.
 - Explorar `Hawaii` como estado destino para segmentación de `extreme diving`.
 
+### Errores
+
+- En el notebook `02_notebook_limpio.ipynb` hay dos errores que contaminan el análisis:
+    * En la celda 9:
+        ```python
+        # Aplicamos `.map()`
+        df_shark_attacks['type'] = df_shark_attacks['type'].map(type_mapping)
+        # Rellenamos `NaN` con `Questionable``
+        df_shark_attacks.fillna("Questionable", inplace=True)
+        ```
+        Estas líneas de código rellenan con `Questionable` todos los nulos a nivel global.
+    * En la celda 11:
+        ```python
+        # Debido  gran cantidad de `Questionable` y de valores en rangos creamos columna `age_clean`
+        # Guardamos el resto de valores por trazabilidad pero los análisis los haremos sobre `age_clean`
+        df_shark_attacks['age_clean'] = pd.to_numeric(df_shark_attacks['age'], errors='coerce')
+        # Comprobamos valores nulos por imputar
+        print(df_shark_attacks['age_clean'].isnull().sum())
+        # Observamos estadísticas para decidir cuál usar para imputar resultados a `NaN``
+        print(df_shark_attacks["age_clean"].describe().T)
+        # Usaremos la mediana para imputar: las edades están dispersas y el máximo es de `86`
+        age_mediana = df_shark_attacks['age_clean'].median()
+        # Rellenamos los nulos con la mediana
+        df_shark_attacks['age_clean'] = df_shark_attacks['age_clean'].fillna(age_mediana)
+        ````
+        Estas líneas imputan con la mediana toda la columna de edad antes de pasar a analizar `California` como estado central para el análisis.
+- Estos errores generan desconfianza sobre algunas de las hipótesis lanzadas durante el proyecto.
+
 ## Próximos pasos
 - Profundizar en correlación `species` ↔ `fatal` y estacionalidad por especie, letalidad y tipo de daño (`injury`).
 - Robustecer fechas y métrica de letalidad (tasa, no solo conteo).
 - Añadir visualizaciones (mapa/heatmap/scatterplot/gráfico de barras por mes y zona).
+- Corregir errores detectados en `## Limitaciones`.
 
 ## Cómo replicar el proyecto
 Instrucciones exactas (entorno, dependencias, y orden recomendado):
